@@ -15,6 +15,9 @@ public class ReverseList extends HttpServlet
     public void doReverse(HttpServletRequest request, HttpServletResponse response)
             throws IOException
     {
+
+        long currentTime = System.currentTimeMillis();
+
         BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
         String jsonStr = "";
         if(br != null)
@@ -23,8 +26,12 @@ public class ReverseList extends HttpServlet
         }
 
         PrintWriter out = response.getWriter();
-        //out.println("{ \"outList\": Doing things!}");
 
+        out.println("RECIEVING: "+jsonStr);
+        if( jsonStr.contains("[]"));
+        {
+            out.println("YAY!");
+        }
         /////////////////////////////////////////
         // Creating a JsonReader Object
         StringReader strReader = new StringReader(jsonStr);
@@ -48,53 +55,65 @@ public class ReverseList extends HttpServlet
             numbers[i] = inArray.getInt(i);
         }
 
-        if(inArray == null)
+        if(inArray.size() == 0)
         {
             // Set response content type to be JSON
             response.setContentType("application/json");
             // Send back the response JSON message
             //PrintWriter out = response.getWriter();
             out = response.getWriter();
-            out.println("{ \"ERROR\":INVALID LIST");
-            System.exit(1);
+            out.println("{ \"ERROR\" : Empty List! }");
         }
 
-        ////////////////////////////////////////
-        // Insertion List sorting algorithm.
-        // Sorts lists from LEAST to GREATEST
-        int i   = 0;
-        int j   = 0;
-        int key = 0;
-
-        JsonArrayBuilder outArrayBuilder = Json.createArrayBuilder();
-
-        for(i=1;i<inArray.size(); i++)
+        else
         {
-           // out.println("SIZE IS :"+inArray.size())
-            out.println("Comparing "+numbers[j]+" and "+key);
-            for(j=i; j>0; j--)
+            /////////////////////////////
+            // Algorithm variables
+            int i   = 0;
+            int j   = 0;
+            int key = 0;
+
+            JsonArrayBuilder outArrayBuilder = Json.createArrayBuilder();
+
+            for(i=1;i<inArray.size(); i++)
             {
-                if (numbers[j] < numbers[j - 1])
+                //////////////////////////////////////////////////////////////
+                // Insertion sorting the number by least -> greatest
+                for(j=i; j>0; j--)
                 {
-                    key = numbers[j];
-                    out.println("ALERT! " + numbers[j] + " > " + key);
-                    numbers[j] = numbers[j - 1];
-                    numbers[j - 1] = key;
-                    // out.println("Swapping "+numbers[j+i]+" with "+numbers[j]);
+                    if (numbers[j] < numbers[j - 1])
+                    {
+                        key = numbers[j];
+                        numbers[j] = numbers[j - 1];
+                        numbers[j - 1] = key;
+                    }
+
                 }
-
             }
-        }
-        for(i=0;i<inArray.size();i++) {
-            outArrayBuilder.add(String.valueOf(numbers[i]));
-        }
-        ////////////////////////////////////////
-        // Set response content type to be JSON
-        response.setContentType("application/json");
+            for(i=0;i<inArray.size();i++)
+            {
+                /////////////////////////////////////////////////
+                // Converting number array to JSON array
+                outArrayBuilder.add(String.valueOf(numbers[i]));
+            }
+            ////////////////////////////////////////
+            // Set response content type to be JSON
+            response.setContentType("application/json");
 
-        ////////////////////////////////////////
-        // Send back the response JSON message
-        //PrintWriter out = response.getWriter();
-        out.println("{ \"outList\" : " + outArrayBuilder.build().toString() + "}");
+            ////////////////////////////////////////
+            // Send back the response JSON message
+
+            // Array of sorted values
+            out.println("{ \"outList\"   : " + outArrayBuilder.build().toString()+",");
+            response.setContentType("application/json");
+
+            // Type of algorithm
+            out.println("{ \"algorithm\" : \"Insertion Sort\",");
+            response.setContentType("application/json");
+
+            // printing ellapsed time
+            long ellapsedTime = System.currentTimeMillis() - currentTime;
+            out.println("{ \"timeMS\"    : \""+ellapsedTime+"\"}");
+        }
     }
 }
