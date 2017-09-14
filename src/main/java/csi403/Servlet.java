@@ -24,9 +24,7 @@ public class Servlet extends HttpServlet
     {
         //////////////////////////////////////////////
         // Standard servlett method, handles a POST operation
-        //response.setContentType("application/json");
-        //PrintWriter out = response.getWriter();
-        //out.println("{ \"outList\" : [5, 4, 1, 2, 3, 12] }");
+        // Moved the actual processing to the "ReverseList" class
         doService(request, response);
     }
     public void doGet (HttpServletRequest request, HttpServletResponse response)
@@ -48,9 +46,9 @@ public class Servlet extends HttpServlet
     {
         //////////////////////////
         // Where the program will call the other class to run
-
         ReverseList myList = new ReverseList();
         myList.doReverse(request,response);
+        destroy();
     }
 
 
