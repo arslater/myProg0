@@ -14,9 +14,17 @@
         <servlet-name>ReverseList</servlet-name>
         <servlet-class>csi403.ReverseList</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>Servlet</servlet-name>
+        <servlet-class>csi403.Servlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ReverseList</servlet-name>
         <url-pattern>/ReverseList</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Servlet</servlet-name>
+        <url-pattern>/Servlet</url-pattern>
     </servlet-mapping>
 
 </web-app>     
