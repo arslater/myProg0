@@ -1,10 +1,10 @@
-package csi403;
+//package csi403;
 
 /*
  * This METHOD gets CALLED WHEN THE POST OPERATION IS SPECIFIED.
  * NOT THE OTHER WAY AROUND
  */
-
+/*
 import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*; //shouldn't be nessessary ..?
@@ -122,4 +122,4 @@ public class ReverseList extends HttpServlet
             out.println("{ \"timeMS\"\t: \""+ellapsedTime+"\"}");
         }
     }
-}
+}*/
