@@ -1,4 +1,4 @@
-package csi403;
+/*package csi403;
 
 import java.io.*;
 import javax.servlet.*;
@@ -8,7 +8,7 @@ import javax.json.*;
 /**
  * Standard utilization of servlets, kept separate to make things cleaner.
  */
-
+/*
 public class Servlet extends HttpServlet
 {
     public void init() throws ServletException
@@ -59,3 +59,4 @@ public class Servlet extends HttpServlet
     }
 }
 
+*/
