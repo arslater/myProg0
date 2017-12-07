@@ -1,23 +1,16 @@
 package csi403;
 
-import java.util.List;
 
 /**
- * Created by hineeduh on 10/29/17.
+ * Created by hineeduh on 11/16/17.
  */
-
-public class InList extends Smarter
+public class InList extends Connected
 {
-    ///////////////////////////////////////////////////////////
-    // Creating the inList master List
+    private Connected[] inList;
+    private Connected myCon;
 
-    private Smarter[] inList;
-    private Smarter mySmarter;
-
-    public Smarter[] getInList()
+    public Connected[] getInList()
     {
         return inList;
     }
 }
-
-// { "inList" : [ { "smarter" : [ "Apple" , "Buuts" ] }, { "smarter" : [ "Apple" , "Buuts" ] }, { "smarter" : [ "Apple" , "Buuts" ] }, { "smarter" : [ "dsf" , "fff" ] } ] }

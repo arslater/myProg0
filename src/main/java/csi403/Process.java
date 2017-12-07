@@ -1,77 +1,143 @@
 package csi403;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jdk.nashorn.internal.runtime.regexp.joni.constants.Traverse;
+import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.traverse.DepthFirstIterator;
+import org.jgrapht.traverse.TopologicalOrderIterator;
+import sun.security.provider.certpath.Vertex;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static java.lang.StrictMath.abs;
+import java.util.Set;
 
 /**
- * Created by hineeduh on 11/16/17.
+ * Processing of the Algorithm is done here
  */
 public class Process {
-    public static void main(String args[]) {
-        System.out.println("Processing the array of coordinates...");
+    public DirectedGraph<String, DefaultEdge> makeGraph(String jsonstr)
+    {
+        InList myList = new InList();
         ObjectMapper map = new ObjectMapper();
-        String input = new String();
-        inList myInList = new inList();
-        Coordinate[] co = null;
-        int i = 0;
 
-        int fX = 0;
-        //BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-        input = "{ \"inList\" : [  { \"x\" : 2,   \"y\" : 1 } , { \"x\" : 2,   \"y\" : 4 } , { \"x\" : 8,  \"y\" : 4 }, { \"x\" : 11, \"y\" : 1 } ] }";
+        ///////////////////////////////////////////////////
+        // Validatign the jsonstring
         try {
-            //System.out.println(map.readValue(input,inList.class));
-            myInList = map.readValue(input, inList.class);
-            co = myInList.getInList();
-
-            fX = co[1].getY();
+            myList = map.readValue(jsonstr, InList.class);
         } catch (Exception e) {
-            System.out.println("Malformed json");
+            System.out.println(" \"message\" : \"Error\" : \"Malformed JSON\" } ");
+            return null;
         }
+        ///////////////////////////////////////////////
+        // Creating the graph
+        DirectedGraph<String, DefaultEdge> myGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        try {
+            Connected[] nodes = myList.getInList();
 
-        System.out.println("The first  value is:" + fX);
-        Process myp = new Process();
-        System.out.println(myp.doArea(co));
+            if ((nodes == null) || (nodes.length == 0)) {
+                throw new Exception("Null Relations");
+            }
+            for (int i = 0; i < nodes.length; i++) {
+                String[] verts = nodes[i].getConnected();
+
+                if (verts == null) {
+                    throw new Exception("Null args");
+                }
+                if (verts.length > 2) {
+                    throw new Exception("Too many args");
+                }
+                try {
+                    if (!myGraph.containsVertex(verts[0])) {
+                        myGraph.addVertex(verts[0]);
+                        System.out.println("case [0] : " + verts[0]);
+                    }
+                    if (!myGraph.containsVertex(verts[1])) {
+                        myGraph.addVertex(verts[1]);
+                        System.out.println("case[1] : " + verts[1]);
+                    }
+                } catch (NullPointerException E) {
+                }
+                myGraph.addEdge(verts[0], verts[1]);
+                System.out.println(myGraph.toString());
+            }
+        } catch (Exception e) {
+            System.out.println(" \"message\" : \"Error\" : \"Malformed JSON\" } ");
+            return null;
+        }
+        return (myGraph);
     }
 
-    public int doArea(Coordinate[] co) {
-        int i   = 0;
-        int sum = 0;
-        int limit = co.length;
-        int[] xVals = new int[limit+1];
-        int[] yVals = new int[limit+1];
+     public String getType(DirectedGraph<String, DefaultEdge> myGraph)
+     {
+         String result = "Irregular";
+         String  head  = null;
+         String  tail  = null;
+         ConnectivityInspector myInsp = new ConnectivityInspector(myGraph);
 
-        for (i = 0; i < limit; i++) {
-            xVals[i] = co[i].getX();
-            yVals[i] = co[i].getY();
-        }
-        xVals[limit] = xVals[0];
-        yVals[limit] = yVals[0];
+         if (myInsp.isGraphConnected()) {
+             try {
+                 TopologicalOrderIterator iter = new TopologicalOrderIterator<>(myGraph);
+                 String v = null;
+                 head = (String) iter.next();
 
-        System.out.println(Arrays.toString(xVals));
-        System.out.println(Arrays.toString(yVals));
+                 while (iter.hasNext())
+                 {
+                     v = (String) iter.next();
+                     System.out.print(v);
 
+                 }
+                 ////////////////////////
+                 // Detecting ring topography
+                 tail = v;
 
+                 if(myInsp.pathExists(head,tail))
+                 {
+                     return("Ring");
+                 }
+             } catch (Exception E) {
+             }
+             result = "apples";
+         }
+         return result;
+     }
 
-        for (i=0;i<limit;i++)
+    public static void main (String args[])
+    {
+        String test1 = "{ \"inList\" : [ { \"connected\" : [ \"C\", \"D\" ] } , { \"connected\" : [ \"D\", \"A\" ] } , { \"connected\" : [ \"A\", \"B\" ] } , { \"connected\" : [ \"B\", \"C\" ] } ] }";
+
+        ObjectMapper map = new ObjectMapper();
+        InList myInList    = new InList();
+        String[] verts = null;
+
+        try
         {
-            sum += (xVals[i]*yVals[i+1]) - (yVals[i]*xVals[i+1]);
-            System.out.println((xVals[i]+"*"+yVals[i+1])+"-"+ (yVals[i]+"*"+xVals[i+1]));
+            /////////////////////////////////////////////////////
+            // Try validating & parsing the JSON array
+            myInList          = map.readValue(test1, InList.class);
+            Connected[] nodes = myInList.getInList();
+            verts      = nodes[0].getConnected();
+
+            System.out.println("The first value is "+verts[0]+" The second is "+verts[1]);
         }
-        return ( (int)abs(sum*.5) );
+        catch (Exception e) {
+            System.out.println("\"Error\" : \"Malformed JSON\"");
+        }
+
+        DirectedGraph<String, DefaultEdge> myGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+
+        Process myProcess = new Process();
+        myGraph = myProcess.makeGraph(test1);
+        String myString = myProcess.getType(myGraph);
+        System.out.println("\nFINALLY:"+myString);
     }
 }
-/* Test input
-
-{ "inList" : [ { "x" : 2, "y" : 1 } , { "x" : 2, "y" : 4 } ] }
-
-{ "inList" : [  { "x" : 2,   "y" : 1 } , { "x" : 2,   "y" : 4 } , { "x" : 8,  "y" : 4 }, { "x" : 11, "y" : 1 } ] }
-
- */

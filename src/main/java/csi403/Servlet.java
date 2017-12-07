@@ -1,4 +1,4 @@
-/*package csi403;
+package csi403;
 
 import java.io.*;
 import javax.servlet.*;
@@ -8,7 +8,7 @@ import javax.json.*;
 /**
  * Standard utilization of servlets, kept separate to make things cleaner.
  */
-/*
+
 public class Servlet extends HttpServlet
 {
     public void init() throws ServletException
@@ -42,21 +42,32 @@ public class Servlet extends HttpServlet
 
     private void doService(HttpServletRequest request,
                            HttpServletResponse response)
-            throws ServletException, IOException
-    {
-        //////////////////////////
-        // Where the program will call the other class to run
-        ReverseList myList = new ReverseList();
-        myList.doReverse(request,response);
-        destroy();
-    }
+            throws ServletException, IOException {
+       /* int count = 0;
+        long currentTime = System.currentTimeMillis();
 
+        PrintWriter out = response.getWriter();
+        Process myProcess = new Process();
+        Coordinate[] co = null;
 
+        co = myProcess.getVals(request);
+        count = myProcess.doArea(co);
+
+        response.setContentType("application/json");
+        out.println("{ \"count\"\t: \"" + count + "\" ,");
+        response.setContentType("application/json");
+
+        // Type of algorithm
+        out.println(" \"algorithm\"\t: \"Shoelace Algorithm\",");
+        response.setContentType("application/json");
+
+        // printing ellapsed time
+        long ellapsedTime = System.currentTimeMillis() - currentTime;
+        out.println(" \"timeMS\"\t: \"" + ellapsedTime + "\"}");
+    */}
     public void destroy()
     {
         ////////////////////////////////////////////////////
         // Do any of the tear-down stuff here
     }
 }
-
-*/
