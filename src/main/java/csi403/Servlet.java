@@ -55,7 +55,10 @@ public class Servlet extends HttpServlet
         String type = myProcess.getType(graph);
 
         response.setContentType("application/json");
-        out.println("\t{ \"type\": \"" + type + "\" }");
+        if ( graph != null)
+            out.println("\t{ \"type\": \"" + type + "\" }");
+        else
+            out.println("{ \"message\": \"Malformed JSON\" }");
     }
     public void destroy()
     {
