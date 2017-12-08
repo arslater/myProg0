@@ -12,6 +12,7 @@ import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 import sun.security.provider.certpath.Vertex;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,13 +26,19 @@ import java.util.Set;
  * Processing of the Algorithm is done here
  */
 public class Process {
-    public DirectedGraph<String, DefaultEdge> makeGraph(String jsonstr)
+    public DirectedGraph<String, DefaultEdge> makeGraph(HttpServletRequest request) throws IOException
     {
+        BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
+        String jsonstr = "";
+        if(br != null)
+        {
+            jsonstr = br.readLine();
+        }
         InList myList = new InList();
         ObjectMapper map = new ObjectMapper();
 
         ///////////////////////////////////////////////////
-        // Validatign the jsonstring
+        // Validating the Json string
         try {
             myList = map.readValue(jsonstr, InList.class);
         } catch (Exception e) {
@@ -53,7 +60,7 @@ public class Process {
                 if (verts == null) {
                     throw new Exception("Null args");
                 }
-                if (verts.length > 2) {
+                else if (verts.length > 2) {
                     throw new Exception("Too many args");
                 }
                 try {
@@ -79,7 +86,7 @@ public class Process {
 
      public String getType(DirectedGraph<String, DefaultEdge> myGraph)
      {
-         String result    = "default -- invalid";
+         String result    = "irregular";
          String  head     = null;
          String  tail     = null;
          int edges        = 0;
@@ -92,7 +99,7 @@ public class Process {
 
              if( myInsp.isGraphConnected() ) {
                  head = (String) dfs.next();
-                 System.out.println(head);
+               //  System.out.println(head);
 
                  v = head;
                  while (dfs.hasNext()) {
@@ -100,16 +107,16 @@ public class Process {
                      if( currEdges > 2 )
                      {
                          edges = currEdges;
-                         System.out.println("MULTIPLE EDGES DETECTED!");
+                      //   System.out.println("MULTIPLE EDGES DETECTED!");
                          i++;
-                         rt = -5000;
+                         rt = -500000;
                      }
                      else if (currEdges == 2)
                      {
                          rt++;
                      }
-                     System.out.println(v + "edges touching: " + edges+" total edges:"+(myGraph.vertexSet().size())+"i="+i);
-                     System.out.println("If statement "+(currEdges));
+                    // System.out.println(v + "edges touching: " + edges+" total edges:"+(myGraph.vertexSet().size())+"i="+i);
+                   //  System.out.println("If statement "+(currEdges));
                      v = (String) dfs.next();
                      tail = v;
                  }
@@ -118,8 +125,8 @@ public class Process {
              {
                  return "star";
              }
-             System.out.println("rt is "+rt);
-             System.out.println(myGraph.containsEdge(tail,head)+"     tail:"+tail+" head: "+head);
+             //System.out.println("rt is "+rt);
+            // System.out.println(myGraph.containsEdge(tail,head)+"     tail:"+tail+" head: "+head);
              if ( (rt == myGraph.vertexSet().size() ) && myGraph.containsEdge(tail,head))
                 return "ring";
              else if((rt == myGraph.vertexSet().size()-1) && !myGraph.containsEdge(tail,head))
@@ -129,7 +136,7 @@ public class Process {
 
          return result;
      }
-
+/*
     public static void main (String args[])
     {
         String test1 = "{ \"inList\" : [ { \"connected\" : [ \"A\", \"B\" ] } , { \"connected\" : [ \"B\", \"C\" ] } , { \"connected\" : [ \"C\", \"D\" ] } , { \"connected\" : [ \"D\", \"E\" ] } ] }";
@@ -177,4 +184,5 @@ public class Process {
         String myString = myProcess.getType(myGraph);
         System.out.println("\nFINALLY:"+myString);
     }
+*/
 }

@@ -1,5 +1,9 @@
 package csi403;
 
+import org.jgrapht.DirectedGraph;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+
 import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*; //shouldn't be nessessary ..?
@@ -43,28 +47,16 @@ public class Servlet extends HttpServlet
     private void doService(HttpServletRequest request,
                            HttpServletResponse response)
             throws ServletException, IOException {
-       /* int count = 0;
-        long currentTime = System.currentTimeMillis();
 
         PrintWriter out = response.getWriter();
         Process myProcess = new Process();
-        Coordinate[] co = null;
-
-        co = myProcess.getVals(request);
-        count = myProcess.doArea(co);
+        DirectedGraph<String, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        graph = myProcess.makeGraph(request);
+        String type = myProcess.getType(graph);
 
         response.setContentType("application/json");
-        out.println("{ \"count\"\t: \"" + count + "\" ,");
-        response.setContentType("application/json");
-
-        // Type of algorithm
-        out.println(" \"algorithm\"\t: \"Shoelace Algorithm\",");
-        response.setContentType("application/json");
-
-        // printing ellapsed time
-        long ellapsedTime = System.currentTimeMillis() - currentTime;
-        out.println(" \"timeMS\"\t: \"" + ellapsedTime + "\"}");
-    */}
+        out.println("\t{ \"type\": \"" + type + "\" }");
+    }
     public void destroy()
     {
         ////////////////////////////////////////////////////
