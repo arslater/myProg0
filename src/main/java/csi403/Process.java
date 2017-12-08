@@ -59,16 +59,16 @@ public class Process {
                 try {
                     if (!myGraph.containsVertex(verts[0])) {
                         myGraph.addVertex(verts[0]);
-                        System.out.println("case [0] : " + verts[0]);
+                      //  System.out.println("case [0] : " + verts[0]);
                     }
                     if (!myGraph.containsVertex(verts[1])) {
                         myGraph.addVertex(verts[1]);
-                        System.out.println("case[1] : " + verts[1]);
+                      //  System.out.println("case[1] : " + verts[1]);
                     }
                 } catch (NullPointerException E) {
                 }
                 myGraph.addEdge(verts[0], verts[1]);
-                System.out.println(myGraph.toString());
+                //System.out.println(myGraph.toString());
             }
         } catch (Exception e) {
             System.out.println(" \"message\" : \"Error\" : \"Malformed JSON\" } ");
@@ -79,55 +79,79 @@ public class Process {
 
      public String getType(DirectedGraph<String, DefaultEdge> myGraph)
      {
-         String result = "Irregular";
-         String  head  = null;
-         String  tail  = null;
-         ConnectivityInspector myInsp = new ConnectivityInspector(myGraph);
+         String result    = "default -- invalid";
+         String  head     = null;
+         String  tail     = null;
+         int edges        = 0;
+         int i            = 0;
+         int rt           = 1;
+         try{
+             TopologicalOrderIterator iter = new TopologicalOrderIterator<>(myGraph);
+             String v = new String();
+             ConnectivityInspector myInsp = new ConnectivityInspector(myGraph);
 
-         if (myInsp.isGraphConnected()) {
-             try {
-                 TopologicalOrderIterator iter = new TopologicalOrderIterator<>(myGraph);
-                 String v = null;
+             if( myInsp.isGraphConnected() ) {
                  head = (String) iter.next();
+                 System.out.println(head);
 
-                 while (iter.hasNext())
-                 {
+                 v = head;
+                 while (iter.hasNext()) {
+                     int currEdges = ((myGraph.edgesOf(v).toString().length())/9);
+                     if( currEdges > 2 )
+                     {
+                         edges = currEdges;
+                         System.out.println("MULTIPLE EDGES DETECTED!");
+                         i++;
+                     }
+                     else if (currEdges == 2)
+                     {
+                         rt++;
+                     }
+                     System.out.println(v + "edges touching: " + edges+" total edges:"+(myGraph.vertexSet().size())+"i="+i);
+                     System.out.println("If statement "+(currEdges));
                      v = (String) iter.next();
-                     System.out.print(v);
-
+                     tail = v;
                  }
-                 ////////////////////////
-                 // Detecting ring topography
-                 tail = v;
-
-                 if(myInsp.pathExists(head,tail))
-                 {
-                     return("Ring");
-                 }
-             } catch (Exception E) {
              }
-             result = "apples";
+             if(( edges == (myGraph.vertexSet().size()) -1) && i == 1 )
+             {
+                 return "star";
+             }
+             System.out.println("rt is "+rt);
+             System.out.println(myGraph.containsEdge(tail,head));
+             if ( (rt == myGraph.vertexSet().size() ) && myGraph.containsEdge(tail,head))
+                return "ring";
+         } catch (Exception E) {
          }
+
          return result;
      }
 
     public static void main (String args[])
     {
-        String test1 = "{ \"inList\" : [ { \"connected\" : [ \"C\", \"D\" ] } , { \"connected\" : [ \"D\", \"A\" ] } , { \"connected\" : [ \"A\", \"B\" ] } , { \"connected\" : [ \"B\", \"C\" ] } ] }";
+        String test1 = "{ \"inList\" : [ { \"connected\" : [ \"A\", \"B\" ] } , { \"connected\" : [ \"B\", \"C\" ] } , { \"connected\" : [ \"C\", \"D\" ] } , { \"connected\" : [ \"D\", \"A\" ] } ] }";
+        String bad1  = "{ \"inList\" : [ { \"connected\" : [ \"A\", \"B\" ] } , { \"connected\" : [ \"B\", \"C\" ] } , { \"connected\" : [ \"B\", \"D\" ] } , { \"connected\" : [ \"D\", \"E\" ] } , { \"connected\" : [ \"E\", \"A\" ] } ] }";
+        String bad2  = "{ \"inList\" : [ { \"connected\" : [ \"A\", \"B\" ] } , { \"connected\" : [ \"B\", \"C\" ] } , { \"connected\" : [ \"B\", \"D\" ] } , { \"connected\" : [ \"D\", \"E\" ] } ] }";
+        String star  = "{ \"inList\" : [ { \"connected\" : [ \"A\", \"B\" ] } , { \"connected\" : [ \"A\", \"C\" ] } , { \"connected\" : [ \"A\", \"D\" ] } , { \"connected\" : [ \"A\", \"E\" ] } ] }";
+        String ring  = "{ \"inList\" : [ { \"connected\" : [ \"C\", \"D\" ] } , { \"connected\" : [ \"B\", \"C\" ] } , { \"connected\" : [ \"D\", \"A\" ] } , { \"connected\" : [ \"A\", \"B\" ] } ] }";
 
         ObjectMapper map = new ObjectMapper();
         InList myInList    = new InList();
+        InList InList1    = new InList();
+        InList InList2    = new InList();
+        InList InList3    = new InList();
+        InList InList4    = new InList();
         String[] verts = null;
 
         try
         {
             /////////////////////////////////////////////////////
             // Try validating & parsing the JSON array
-            myInList          = map.readValue(test1, InList.class);
-            Connected[] nodes = myInList.getInList();
-            verts      = nodes[0].getConnected();
-
-            System.out.println("The first value is "+verts[0]+" The second is "+verts[1]);
+            myInList   = map.readValue(test1, InList.class);
+            InList1    =  map.readValue(bad1, InList.class);
+            InList2    =  map.readValue(bad2, InList.class);
+            InList3    =  map.readValue(star, InList.class);
+            InList4    =  map.readValue(ring, InList.class);
         }
         catch (Exception e) {
             System.out.println("\"Error\" : \"Malformed JSON\"");
@@ -136,7 +160,7 @@ public class Process {
         DirectedGraph<String, DefaultEdge> myGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
         Process myProcess = new Process();
-        myGraph = myProcess.makeGraph(test1);
+        myGraph = myProcess.makeGraph(bad1);
         String myString = myProcess.getType(myGraph);
         System.out.println("\nFINALLY:"+myString);
     }
